@@ -28,9 +28,7 @@ namespace RegexManagerCore
         }
 
         public void Run(string test){
-
-            var patterns = RegexToExecute.Select(r => r.Pattern);
-
+        
             var index = 0;
 
             var success = false;
