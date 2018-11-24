@@ -2,24 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using RegexManagerCore.Interfaces;
 
-namespace RegexManagerLib
+namespace RegexManagerCore
 {
     public class RegexManager
     {
-        public Action NoMatchCallback
+        public Action<Match> NoMatchCallback
         {
             get;
         }
-        public IEnumerable<IRegexExecute> RegexToExecute { get; protected set; }
+
+        public IList<IRegexExecute<Match>> RegexToExecute { get; protected set; }
 
         public RegexManager()
         {
-            RegexToExecute = new List<IRegexExecute>();
+            RegexToExecute = new List<IRegexExecute<Match>>();
+            NoMatchCallback = (m) => { throw new Exception("Not implemented."); };
         }
-        public RegexManager(Action noMatchCallback)
+
+        public RegexManager(Action<Match> noMatchCallback)
         {
-            RegexToExecute = new List<IRegexExecute>();
+            RegexToExecute = new List<IRegexExecute<Match>>();
             NoMatchCallback = noMatchCallback;
         }
 
@@ -27,53 +31,35 @@ namespace RegexManagerLib
 
             var patterns = RegexToExecute.Select(r => r.Pattern);
 
-            var index = -1;
-
+            var index = 0;
 
             var success = false;
-            Match match;
-            IRegexExecute regexExecute;
+            Match match = null;
+            IRegexExecute<Match> regexExecute;
 
             while (!success && index< RegexToExecute.Count())
             {
-                index++;
                 regexExecute = RegexToExecute.ElementAt(index);
 
-                Regex rex = new Regex(regexExecute.Pattern);
+                var rex = new Regex(regexExecute.Pattern);
                 match = rex.Match(test);
                 success = match.Success;
 
                 if (success)
                     regexExecute.MatchCallback?.Invoke(match);
+                index++;
 
             }
 
             if (!success)
-                NoMatchCallback?.Invoke();
+                NoMatchCallback?.Invoke(match);
 
         }
 
-        public RegexManager JoinRegex(IRegexExecute regexExecute){
-            var l = RegexToExecute.ToList();
-            l.Add(regexExecute);
-            RegexToExecute = l;
+        public RegexManager AddRegex(IRegexExecute<Match> regexExecute){
+            RegexToExecute.Add(regexExecute);
             return this;
         }
     }
 
-    public interface IRegexExecute
-    {
-        string Pattern
-        {
-            get;
-            set;
-        }
-
-        Action<Group> MatchCallback { get; set; }
-    }
-
-    public interface IRegexResult
-    {
-        Group match { get; }
-    }
 }

@@ -1,10 +1,14 @@
 ﻿using System;
-namespace RegexManager.Interfaces
+namespace RegexManagerCore.Interfaces
 {
-    public class IRegexExecute
+    public interface IRegexExecute<T> where T : class
     {
-        public IRegexExecute()
+        string Pattern
         {
+            get;
+            set;
         }
+
+        Action<T> MatchCallback { get; set; }
     }
 }
