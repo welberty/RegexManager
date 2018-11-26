@@ -7,4 +7,7 @@
   <ItemGroup>
     <Folder Include="Interfaces\" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="IRegexExecute.cs" />
+  </ItemGroup>
 </Project>

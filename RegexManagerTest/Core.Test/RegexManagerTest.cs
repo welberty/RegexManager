@@ -1,5 +1,6 @@
 ﻿using Xunit;
 using RegexManagerCore;
+using System.Text.RegularExpressions;
 
 namespace RegexManagerTest.Core.Test
 {
@@ -8,35 +9,38 @@ namespace RegexManagerTest.Core.Test
         [Fact]
         public void Match_True(){
 
-            RegexManager manager = new RegexManager((m) => { Assert.True(m.Success); });
-            manager
-                .AddRegex(new RegexExecute("[0-9]", (m) => { Assert.True(m.Success); }))
-                .AddRegex(new RegexExecute("[a-z]", (m) => { Assert.True(m.Success); }))
-                .Run("7");
+            var manager = new RegexManager<bool>(() => { Assert.True(false); });
+            var match = manager
+                        .AddRegex(new RegexExecute<bool>("[0-9]", (m) => { return m.Success; }))
+                        .AddRegex(new RegexExecute<bool>("[a-z]", (m) => { return m.Success; }))
+                        .Run("7");
+            Assert.True(match);
         }
 
         [Fact]
         public void Match_False()
         {
 
-            RegexManager manager = new RegexManager((m) => { Assert.False(m.Success); });
-            manager
-                .AddRegex(new RegexExecute("[0-9]", (m) => { Assert.False(m.Success); }))
-                .AddRegex(new RegexExecute("[a-z]", (m) => { Assert.False(m.Success); }))
-                .Run("+");
+            var manager = new RegexManager<bool>(() => { Assert.False(false); });
+            var match = manager
+                        .AddRegex(new RegexExecute<bool>("[0-9]", (m) => { return m.Success; }))
+                        .AddRegex(new RegexExecute<bool>("[a-z]", (m) => { return m.Success; }))
+                        .Run("-");
+            Assert.False(match);
         }
 
         [Fact]
         public void Match_True_And_Equals_Value()
         {
             var testValue = "7";
-            var returnValue = "";
-            RegexManager manager = new RegexManager((m) => { Assert.True(m.Success); });
-            manager
-                .AddRegex(new RegexExecute("[0-9]", (m) => { Assert.True(m.Success); returnValue = m.Value; }))
-                .AddRegex(new RegexExecute("[a-z]", (m) => { Assert.True(m.Success); returnValue = m.Value; }))
-                .Run(testValue);
-            Assert.Equal(testValue, returnValue);
+
+            RegexManager<Match> manager = new RegexManager<Match>(() => { Assert.True(false); });
+            var m2 = manager
+                    .AddRegex(new RegexExecute<Match>("[0-9]", (m) => { return m; }))
+                    .AddRegex(new RegexExecute<Match>("[a-z]", (m) => { return m; }))
+                    .Run(testValue);
+            Assert.True(m2.Success);
+            Assert.Equal(testValue, m2.Value);
         }
     }
 }

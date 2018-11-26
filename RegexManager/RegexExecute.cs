@@ -4,12 +4,12 @@ using RegexManagerCore.Interfaces;
 
 namespace RegexManagerCore
 {
-    public class RegexExecute : IRegexExecute<Match>
+    public class RegexExecute<TResult> : IRegexExecute<Match, TResult>
     {
         public string Pattern { get; set; }
-        public Action<Match> MatchCallback { get; set; }
+        public Func<Match, TResult> MatchCallback { get; set; }
 
-        public RegexExecute(string pattern, Action<Match> matchCallback)
+        public RegexExecute(string pattern, Func<Match, TResult> matchCallback)
         {
             Pattern = pattern;
             MatchCallback = matchCallback;

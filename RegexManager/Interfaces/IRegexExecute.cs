@@ -1,7 +1,7 @@
 ﻿using System;
 namespace RegexManagerCore.Interfaces
 {
-    public interface IRegexExecute<T> where T : class
+    public interface IRegexExecute<TInput, TResult>
     {
         string Pattern
         {
@@ -9,6 +9,6 @@ namespace RegexManagerCore.Interfaces
             set;
         }
 
-        Action<T> MatchCallback { get; set; }
+        Func<TInput,TResult> MatchCallback { get; set; }
     }
 }

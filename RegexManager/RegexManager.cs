@@ -6,34 +6,33 @@ using RegexManagerCore.Interfaces;
 
 namespace RegexManagerCore
 {
-    public class RegexManager
+    public class RegexManager<TResult>
     {
-        public Action<Match> NoMatchCallback
+        public Action NoMatchCallback
         {
             get;
         }
 
-        public IList<IRegexExecute<Match>> RegexToExecute { get; protected set; }
+        public IList<IRegexExecute<Match, TResult>> RegexToExecute { get; protected set; }
 
         public RegexManager()
         {
-            RegexToExecute = new List<IRegexExecute<Match>>();
-            NoMatchCallback = (m) => { throw new Exception("Not implemented."); };
+            RegexToExecute = new List<IRegexExecute<Match, TResult>>();
         }
 
-        public RegexManager(Action<Match> noMatchCallback)
+        public RegexManager(Action noMatchCallback)
         {
-            RegexToExecute = new List<IRegexExecute<Match>>();
+            RegexToExecute = new List<IRegexExecute<Match, TResult>>();
             NoMatchCallback = noMatchCallback;
         }
 
-        public void Run(string test){
+        public TResult Run(string test){
         
             var index = 0;
 
             var success = false;
             Match match = null;
-            IRegexExecute<Match> regexExecute;
+            IRegexExecute<Match, TResult> regexExecute;
 
             while (!success && index< RegexToExecute.Count())
             {
@@ -44,17 +43,24 @@ namespace RegexManagerCore
                 success = match.Success;
 
                 if (success)
-                    regexExecute.MatchCallback?.Invoke(match);
+                {
+                    if (regexExecute.MatchCallback != null)
+                        return regexExecute.MatchCallback.Invoke(match);
+                    else
+                        return default(TResult);
+
+                }
+
                 index++;
 
             }
 
-            if (!success)
-                NoMatchCallback?.Invoke(match);
+            NoMatchCallback?.Invoke();
+            return default(TResult);
 
         }
 
-        public RegexManager AddRegex(IRegexExecute<Match> regexExecute){
+        public RegexManager<TResult> AddRegex(IRegexExecute<Match, TResult> regexExecute){
             RegexToExecute.Add(regexExecute);
             return this;
         }
